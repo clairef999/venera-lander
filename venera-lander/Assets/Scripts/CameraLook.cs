@@ -7,6 +7,8 @@ public class CameraLook : MonoBehaviour
     public float rotateSpeed = 10f;
     private float direct = 0;
     private float streng = 0;
+
+    public bool debug = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -23,7 +25,7 @@ public class CameraLook : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, Mathf.Infinity))
         {
-            Debug.Log(hit.transform.gameObject.name);
+            if (debug) Debug.Log(hit.transform.gameObject.name);
             if(hit.transform.gameObject.GetComponent<LookRegion>() != null)
             {
                 var lookDir = hit.transform.gameObject.GetComponent<LookRegion>().direction;
