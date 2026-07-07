@@ -1,24 +1,19 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.UI.Image;
 
 public class InteractableRaycast : MonoBehaviour
 {
-
     public bool interactOnMouseHeld = false;
-
     public bool debugMode = false;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    private Switch lastInteractedSwitch;
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
+        if (Input.GetKeyUp(KeyCode.Mouse0))
+        {
+            lastInteractedSwitch = null;
+        }
+
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             CheckInteractable();
@@ -28,9 +23,10 @@ public class InteractableRaycast : MonoBehaviour
             CheckInteractable();
         }
     }
+
     public void CheckInteractable()
     {
-        if (debugMode)Debug.Log("Checking interactables...");
+        if (debugMode) Debug.Log("Checking interactables...");
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit[] hits = Physics.RaycastAll(ray, Mathf.Infinity);
@@ -39,10 +35,22 @@ public class InteractableRaycast : MonoBehaviour
 
         foreach (RaycastHit hit in hits)
         {
-            if (hit.transform.gameObject.GetComponent<Interactable>() != null)
+            Switch hitSwitch = hit.transform.GetComponent<Switch>();
+
+            if (hitSwitch != null)
             {
-                if (debugMode) Debug.Log("Found interactable: " + hit.transform.gameObject.name);
-                hit.transform.gameObject.GetComponent<Interactable>().Interact();
+                if (hitSwitch == lastInteractedSwitch)
+                {
+                    return;
+                }
+
+                if (debugMode)
+                    Debug.Log("Found interactable: " + hit.transform.gameObject.name);
+
+                hitSwitch.Interact();
+                lastInteractedSwitch = hitSwitch;
+
+                return;
             }
         }
     }

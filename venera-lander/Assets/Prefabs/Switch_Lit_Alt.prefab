@@ -241,9 +241,12 @@ MonoBehaviour:
   audioSource: {fileID: 1525013656378758852}
   switchUpSound: {fileID: 8300000, guid: e0f58efd38045074eb98dfc2d61d9229, type: 3}
   switchDownSound: {fileID: 8300000, guid: f71d118233826324e9e5536e02b7b679, type: 3}
+  incorrectSound: {fileID: 8300000, guid: a211a13020680004786e6704fabf09b5, type: 3}
   topLight: {fileID: 2594372833747680279}
   bottomLight: {fileID: 9112962724843745546}
   isLit: 1
+  switchIndex: 0
+  switchBoard: {fileID: 0}
 --- !u!82 &1525013656378758852
 AudioSource:
   m_ObjectHideFlags: 0
