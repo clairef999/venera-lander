@@ -1,13 +1,12 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class TempManager : MonoBehaviour
 {
     public static TempManager instance { get; private set; }
 
-    public float landerTemp;
-    public TextMeshProUGUI tempText;
     public TextMeshProUGUI sequenceText;
 
     public Slider tempSlider;
@@ -17,7 +16,7 @@ public class TempManager : MonoBehaviour
     public float stableTemp;
     public SwitchBoard[] boardArray;
 
-    public bool tempDecreasing = false;
+
 
     public int[] currentSequence;
     public int currentIndex;
@@ -31,6 +30,26 @@ public class TempManager : MonoBehaviour
     [Range(0f, 100f)]
     public float cascadeChance = 25f;
 
+    public float landerTemp = 0f;
+    public bool tempDecreasing = false;
+
+    [Header("Temperature UI")]
+    public TextMeshProUGUI temperatureText;
+    public TextMeshProUGUI coolingText;
+
+    [Header("Temperature Settings")]
+    public float heatRate = 1f;
+    public float coolingTime = 2f;
+    public float cautionaryTemp = 50f;
+    public float extremeTemp = 75f;
+
+    [Header("Temperature Colors")]
+    public Color acceptableColor;
+    public Color cautionaryColor;
+    public Color extremeColor;
+
+
+
     private void Awake()
     {
         instance = this;
@@ -38,16 +57,46 @@ public class TempManager : MonoBehaviour
 
     private void Update()
     {
+        HeatOverTime();
+        UpdateTemperatureUI();
         TempCheck();
     }
 
     public void TempCheck()
     {
-        if (landerTemp >= stableTemp && !tempDecreasing && currentBoard == null)
+        if (currentBoard == null)
         {
             NewSequence();
         }
     }
+
+    private void HeatOverTime()
+    {
+        if (tempDecreasing) return;
+
+        landerTemp += heatRate * Time.deltaTime;
+    }
+
+    private void UpdateTemperatureUI()
+    {
+        if (temperatureText == null) return;
+
+        temperatureText.text = landerTemp.ToString("F0") + "°";
+
+        if (landerTemp < cautionaryTemp)
+        {
+            temperatureText.color = acceptableColor;
+        }
+        else if (landerTemp < extremeTemp)
+        {
+            temperatureText.color = cautionaryColor;
+        }
+        else
+        {
+            temperatureText.color = extremeColor;
+        }
+    }
+
 
     public void NewSequence()
     {
@@ -70,24 +119,6 @@ public class TempManager : MonoBehaviour
 
         UpdateSequenceDisplay(currentSequence);
     }
-
-    /*
-    public void PrintOrderInConsole(int[] sequence)
-    {
-        string result = "";
-
-        for (int i = 0; i < sequence.Length; i++)
-        {
-            result += (sequence[i] + 1).ToString();
-
-            if (i < sequence.Length - 1)
-                result += ", ";
-        }
-
-        Debug.Log("Correct switch order: " + result);
-    }
-    */
-
     private int[] GenerateSequence(int length)
     {
         int[] order = new int[length];
@@ -129,46 +160,22 @@ public class TempManager : MonoBehaviour
         {
             Debug.Log("Sequence Complete");
 
+            CoolingSequence(currentBoard.degreesCooled);
+
             currentBoard.DeactivateBoard();
+
             currentBoard = null;
-
-            // Cooling(currentBoard.degreesCooled);
-
             NewSequence();
         }
     }
 
-    public void Cooling(float coolingAmount)
+    public void CoolingSequence(float degreesCooled)
     {
-        landerTemp -= coolingAmount;
-    }
-
-    /* OLD SEQUENCE DISPLAY METHOD
-    public void UpdateSequenceDisplay(int[] sequence)
-    {
-        string result = "";
-
-        for (int i = 0; i < sequence.Length; i++)
+        if (!tempDecreasing)
         {
-        
-            result += (sequence[i] + 1).ToString();
-
-            if (i < sequence.Length - 1)
-            {
-                result += " | ";
-            }
+            StartCoroutine(CoolingRoutine(degreesCooled));
         }
-
-       
-        if (sequenceText != null)
-        {
-            sequenceText.text = result;
-        }
-
-
-        if (debugging) Debug.Log("Correct switch order: " + result);
     }
-    */
     public void UpdateSequenceDisplay(int[] sequence)
     {
         int[] displayOrder = new int[sequence.Length];
@@ -198,5 +205,41 @@ public class TempManager : MonoBehaviour
         }
 
         Debug.Log("Displayed switch order: " + result);
+    }
+
+    private IEnumerator CoolingRoutine(float degreesCooled)
+    {
+        tempDecreasing = true;
+
+        if (coolingText != null)
+        {
+            coolingText.gameObject.SetActive(true);
+        }
+
+        float startTemp = landerTemp;
+        float targetTemp = landerTemp - degreesCooled;
+
+        float elapsed = 0f;
+
+        while (elapsed < coolingTime)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / coolingTime;
+
+            landerTemp = Mathf.Lerp(startTemp, targetTemp, t);
+
+            UpdateTemperatureUI();
+
+            yield return null;
+        }
+
+        landerTemp = targetTemp;
+
+        if (coolingText != null)
+        {
+            coolingText.gameObject.SetActive(false);
+        }
+
+        tempDecreasing = false;
     }
 }
