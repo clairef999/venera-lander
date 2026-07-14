@@ -48,6 +48,11 @@ public class TempManager : MonoBehaviour
     public Color cautionaryColor;
     public Color extremeColor;
 
+    [Header("Letter UI")]
+    public GameObject fourSwitchUI;
+    public GameObject fiveSwitchUI;
+    public GameObject sixSwitchUI;
+
 
 
     private void Awake()
@@ -113,6 +118,8 @@ public class TempManager : MonoBehaviour
         previousBoardIndex = nextBoard;
 
         currentBoard = boardArray[nextBoard];
+        UpdateSequenceUI(currentBoard.switches.Length);
+
         currentSequence = GenerateSequence(currentBoard.switches.Length);
 
         currentBoard.ActivateBoard();
@@ -195,7 +202,7 @@ public class TempManager : MonoBehaviour
 
             if (i < displayOrder.Length - 1)
             {
-                result += " | ";
+                result += "|";
             }
         }
 
@@ -241,5 +248,27 @@ public class TempManager : MonoBehaviour
         }
 
         tempDecreasing = false;
+    }
+
+    private void UpdateSequenceUI(int switchCount)
+    {
+        fourSwitchUI.SetActive(false);
+        fiveSwitchUI.SetActive(false);
+        sixSwitchUI.SetActive(false);
+
+        switch (switchCount)
+        {
+            case 4:
+                fourSwitchUI.SetActive(true);
+                break;
+
+            case 5:
+                fiveSwitchUI.SetActive(true);
+                break;
+
+            case 6:
+                sixSwitchUI.SetActive(true);
+                break;
+        }
     }
 }
