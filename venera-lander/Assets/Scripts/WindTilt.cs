@@ -13,10 +13,10 @@ public class WindTilt : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (windOn)
-        {
-            WindTilting();
-        }
+        //if (windOn)
+        //{
+        //    WindTilting();
+        //}
        
     }
 
@@ -26,12 +26,12 @@ public class WindTilt : MonoBehaviour
         if (Input.GetKey(KeyCode.A))
         {
             //vessel.transform.DOLocalRotate(new Vector3(vessel.transform.localRotation.x + tiltfactor, -90, 0), 0.1f);
-            vessel.transform.Rotate(new Vector3(vessel.transform.localRotation.x + tiltfactor, -90, 0), Space.Self);
+            //vessel.transform.Rotate(new Vector3(vessel.transform.localRotation.x + tiltfactor, -90, 0), Space.Self);
             //vessel.transform.localRotation = Quaternion.Euler(vessel.transform.localRotation.x + tiltfactor, -90, 0);
         }
         if (Input.GetKey(KeyCode.D))
         {
-            vessel.transform.Rotate(new Vector3(vessel.transform.localRotation.x - tiltfactor, -90, 0), Space.Self);
+           // vessel.transform.Rotate(new Vector3(vessel.transform.localRotation.x - tiltfactor, -90, 0), Space.Self);
             //  vessel.transform.DOLocalRotate(new Vector3(vessel.transform.localRotation.x - tiltfactor, -90, 0), 0.1f);
             // vessel.transform.localRotation = Quaternion.Euler(vessel.transform.localRotation.x - tiltfactor, -90, 0);
         }
