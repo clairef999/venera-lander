@@ -53,6 +53,20 @@ public class TempManager : MonoBehaviour
     public GameObject fiveSwitchUI;
     public GameObject sixSwitchUI;
 
+    [Header("Sub-Sequences")]
+    [Min(1)]
+    public int requiredSubSequences = 3;
+
+    public int completedSubSequences = 0;
+
+    public TextMeshProUGUI progressText;
+    public TextMeshProUGUI sequenceCompleteText;
+
+    public float timeToSwitch = 2f;
+    public float sequenceCompleteDuration = 2f;
+
+    private bool changingBoards = false;
+
 
 
     private void Awake()
@@ -105,7 +119,12 @@ public class TempManager : MonoBehaviour
 
     public void NewSequence()
     {
+        if (changingBoards) return;
+
         currentIndex = 0;
+        completedSubSequences = 0;
+
+        UpdateProgressText();
 
         int nextBoard;
 
@@ -118,14 +137,22 @@ public class TempManager : MonoBehaviour
         previousBoardIndex = nextBoard;
 
         currentBoard = boardArray[nextBoard];
-        UpdateSequenceUI(currentBoard.switches.Length);
 
-        currentSequence = GenerateSequence(currentBoard.switches.Length);
+        UpdateSequenceUI(currentBoard.switches.Length);
 
         currentBoard.ActivateBoard();
 
+        StartNewSubSequence();
+    }
+    private void StartNewSubSequence()
+    {
+        currentIndex = 0;
+
+        currentSequence = GenerateSequence(currentBoard.switches.Length);
+
         UpdateSequenceDisplay(currentSequence);
     }
+
     private int[] GenerateSequence(int length)
     {
         int[] order = new int[length];
@@ -163,16 +190,30 @@ public class TempManager : MonoBehaviour
 
     public void Progress()
     {
-        if (currentIndex >= currentSequence.Length)
+        if (currentSequence == null || currentBoard == null)
+            return;
+
+        if (currentIndex < currentSequence.Length)
+            return;
+
+        completedSubSequences++;
+        UpdateProgressText();
+
+        if (completedSubSequences < requiredSubSequences)
         {
-            Debug.Log("Sequence Complete");
+            Debug.Log(
+                "Sub-sequence complete: " +
+                completedSubSequences + "/" +
+                requiredSubSequences
+            );
 
-            CoolingSequence(currentBoard.degreesCooled);
+            StartNewSubSequence();
+        }
+        else
+        {
+            Debug.Log("All sub-sequences complete");
 
-            currentBoard.DeactivateBoard();
-
-            currentBoard = null;
-            NewSequence();
+            StartCoroutine(CompleteBoardSequence());
         }
     }
 
@@ -270,5 +311,61 @@ public class TempManager : MonoBehaviour
                 sixSwitchUI.SetActive(true);
                 break;
         }
+    }
+
+    private void UpdateProgressText()
+    {
+        if (progressText == null)
+            return;
+
+        progressText.text =
+            completedSubSequences + "/" + requiredSubSequences;
+    }
+
+    private IEnumerator CompleteBoardSequence()
+    {
+        changingBoards = true;
+
+        float degreesCooled = currentBoard.degreesCooled;
+
+        currentBoard.boardLocked = true;
+        currentBoard.DeactivateBoard();
+
+        CoolingSequence(degreesCooled);
+
+        StartCoroutine(CompletionTextSequence());
+
+        yield return new WaitForSeconds(timeToSwitch);
+
+        currentBoard = null;
+        changingBoards = false;
+
+        NewSequence();
+    }
+
+    private IEnumerator CompletionTextSequence()
+    {
+        if (sequenceCompleteText == null)
+            yield break;
+
+        if (sequenceText != null)
+            sequenceText.gameObject.SetActive(false);
+
+        float elapsed = 0f;
+        bool visible = true;
+
+        while (elapsed < sequenceCompleteDuration)
+        {
+            sequenceCompleteText.gameObject.SetActive(visible);
+            visible = !visible;
+
+            yield return new WaitForSeconds(0.25f);
+            elapsed += 0.25f;
+        }
+
+        sequenceCompleteText.gameObject.SetActive(false);
+
+        if (sequenceText != null)
+            sequenceText.gameObject.SetActive(true);
     }
 }
