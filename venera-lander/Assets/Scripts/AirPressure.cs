@@ -15,6 +15,9 @@ public class AirPressure : MonoBehaviour
     private bool dangerousLvl = false;
     public float dangerousPressureValue;
     public float killPressureValue;
+    public GameObject wheel;
+    private float startMouseX;
+    private float dragDelta = 0;
     // Start is called before the first frame update
     void Start()
     {
@@ -51,6 +54,49 @@ public class AirPressure : MonoBehaviour
         {
             pressureTxt.text = "ur dead";
         }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+
+            // Vector3 t = Camera.main.ScreenToViewportPoint(Input.mousePosition);
+            Vector3 t = Input.mousePosition;
+            startMouseX = t.x;
+        }
+        if (Input.GetMouseButton(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit, Mathf.Infinity))
+            {
+                Debug.Log(hit.collider.gameObject.name);
+                if (hit.collider.CompareTag("Wheel"))
+                {
+                    RotateWheel();
+                    Debug.Log("wheel turn");
+                }
+            }
+        }
+        if (Input.GetMouseButtonUp(0))
+        {
+            dragDelta = 0;
+            startMouseX = 0;
+        }
+    }
+
+    public void RotateWheel()
+    {
+        Vector3 currentMousePos = Input.mousePosition;
+        dragDelta = currentMousePos.x - startMouseX;
+        Vector3 currentAngles = new Vector3(0, 0, transform.localEulerAngles.z);
+        currentAngles.z += (dragDelta / 4);
+        wheel.transform.localEulerAngles = currentAngles;
+
+        Debug.Log("startmouseX: " + startMouseX);
+        Debug.Log("dragDelta.z: " + dragDelta);
+        Debug.Log("currentMousePosX: " + currentMousePos.x);
+        Debug.Log("currentAngles.z: " + currentAngles.z);
+
     }
 
     public void ReleasePressure()
@@ -78,4 +124,6 @@ public class AirPressure : MonoBehaviour
         }
 
     }
+
+
 }

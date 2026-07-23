@@ -18,46 +18,56 @@ public class CameraLook : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.Rotate(Vector3.up, (direct * streng) * rotateSpeed * Time.deltaTime);
+        transform.Rotate(Vector3.up, (direct) * rotateSpeed * Time.deltaTime);
 
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity))
+        if (Input.GetKey(KeyCode.A))
         {
-            if (debug) Debug.Log(hit.transform.gameObject.name);
-            if(hit.transform.gameObject.GetComponent<LookRegion>() != null)
-            {
-                var lookDir = hit.transform.gameObject.GetComponent<LookRegion>().direction;
-                var lookFact = hit.transform.gameObject.GetComponent<LookRegion>().lookStrength;
-                if(lookDir == LookRegion.dir.Left)
-                {
-                    direct = -1f;
-                }
-                if (lookDir == LookRegion.dir.Right)
-                {
-                    direct = 1f;
-                }
-                if(lookFact == LookRegion.strength.Min)
-                {
-                    streng = 1f;
-                }
-                if (lookFact == LookRegion.strength.Max)
-                {
-                    streng = 2f;
-                }
-            }
-            else
-            {
-                direct = 0;
-                streng = 0;
-            }
+            direct = -1.5f;
 
+        }
+        else if (Input.GetKey(KeyCode.D))
+        {
+            direct = 1.5f;
         }
         else
         {
             direct = 0;
             streng = 0;
         }
+        //Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        //RaycastHit hit;
+
+        //if (Physics.Raycast(ray, out hit, Mathf.Infinity))
+        //{
+        //    if (debug) Debug.Log(hit.transform.gameObject.name);
+        //    if(hit.transform.gameObject.GetComponent<LookRegion>() != null)
+        //    {
+        //        var lookDir = hit.transform.gameObject.GetComponent<LookRegion>().direction;
+        //        var lookFact = hit.transform.gameObject.GetComponent<LookRegion>().lookStrength;
+        //        if(lookDir == LookRegion.dir.Left)
+        //        {
+        //            direct = -1f;
+        //        }
+        //        if (lookDir == LookRegion.dir.Right)
+        //        {
+        //            direct = 1f;
+        //        }
+        //        if(lookFact == LookRegion.strength.Min)
+        //        {
+        //            streng = 1f;
+        //        }
+        //        if (lookFact == LookRegion.strength.Max)
+        //        {
+        //            streng = 2f;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        direct = 0;
+        //        streng = 0;
+        //    }
+
+        //}
+
     }
 }
