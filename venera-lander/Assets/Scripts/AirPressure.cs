@@ -84,12 +84,13 @@ public class AirPressure : MonoBehaviour
         }
     }
 
+    private Vector3 currentAngles;
     public void RotateWheel()
     {
         Vector3 currentMousePos = Input.mousePosition;
         dragDelta = currentMousePos.x - startMouseX;
-        Vector3 currentAngles = new Vector3(0, 0, transform.localEulerAngles.z);
-        currentAngles.z += (dragDelta / 4);
+        /*Vector3*/ currentAngles = new Vector3(0, 0, wheel.transform.localEulerAngles.z);
+        currentAngles.z += (dragDelta / 200);
         wheel.transform.localEulerAngles = currentAngles;
 
         Debug.Log("startmouseX: " + startMouseX);
